@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE repositories SYSTEM "http://www.gentoo.org/dtd/repositories.dtd">
 <repositories xmlns="" version="1.0">
-  <repo quality="experimental">
+  <repo quality="experimental" status="unofficial">
     <name>julia-portage</name>
     <description>overlay for julia ebuilds</description>
-    <owner type="project">
+    <owner type="person">
         <name>julia-gentoo</name>
         <email>julia-gentoo@gentoo.org</email>    
     </owner>
