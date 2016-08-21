@@ -4,7 +4,7 @@
   <repo quality="experimental" status="unofficial">
     <name>julia-portage</name>
     <description>overlay for julia ebuilds</description>
-    <owner type="person">
+    <owner>
         <name>julia-gentoo</name>
         <email>julia-gentoo@gentoo.org</email>    
     </owner>
