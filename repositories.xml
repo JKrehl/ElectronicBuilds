@@ -5,10 +5,14 @@
     <name>julia-portage</name>
     <description>overlay for julia ebuilds</description>
     <homepage>https://github.com/JKrehl/julia-portage</homepage>
-    <owner>
-        <name>julia-gentoo</name>
-        <email>julia-gentoo@gentoo.org</email>    
+    <owner type="person">
+        <name>JKrehl</name>
+        <email>https://github.com/JKrehl</email>    
     </owner>
-    <source type="git">git://github.com/JKrehl/julia-portage.git</source>
+    <source type="git">https://anongit.gentoo.org/git/JKrehl/julia-portage.git</source>
+    <source type="git">git://anongit.gentoo.org/JKrehl/julia-portage.git</source>
+    <source type="git">git+ssh://git@git.gentoo.org/JKrehl/julia-portage.git</source>
+    <feed>https://cgit.gentoo.org/JKrehl/julia-portage/atom/</feed>
+
   </repo>
 </repositories>
