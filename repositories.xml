@@ -2,9 +2,9 @@
 <!DOCTYPE repositories SYSTEM "http://www.gentoo.org/dtd/repositories.dtd">
 <repositories xmlns="" version="1.0">
   <repo quality="experimental" status="unofficial">
-      <name>julia-gentoo</name>
+      <name>julia-portage</name>
       <description lang="en">layman overlay for julia builds</description>
-      <homepage>https://github.com/JKrehl/julia-gentoo</homepage>
+      <homepage>https://github.com/JKrehl/julia-portage</homepage>
       <owner type="person">
           <email>https://github.com/JKrehl</email>
           <name>JKrehl</name>
