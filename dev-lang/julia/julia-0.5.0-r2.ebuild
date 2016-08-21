@@ -14,7 +14,7 @@ CP=$PN-$CPVR
 DESCRIPTION="High-performance programming language for technical computing"
 HOMEPAGE="http://julialang.org/"
 SRC_URI="
-	https://github.com/JuliaLang/${PN}/releases/download/v${CPVR}/${CP}.tar.gz
+	https://github.com/JuliaLang/${PN}/releases/download/v${CPVR}/${CP}.tar.gz -> ${P}.tar.gz
 "
 
 LICENSE="MIT"
