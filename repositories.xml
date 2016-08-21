@@ -3,7 +3,7 @@
 <repositories xmlns="" version="1.0">
   <repo quality="experimental" status="unofficial">
     <name>julia-portage</name>
-    <description>overlay for julia ebuilds</description>
+    <description lang="en">overlay for julia ebuilds</description>
     <homepage>https://github.com/JKrehl/julia-portage</homepage>
     <owner type="person">
         <name>JKrehl</name>
