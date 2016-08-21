@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE repositories SYSTEM "http://www.gentoo.org/dtd/repositories.dtd">
 <repositories xmlns="" version="1.0">
-
-<repositories encoding="unicode" version="1.0">
   <repo quality="experimental">
     <name>julia-portage</name>
     <description>overlay for julia ebuilds</description>
