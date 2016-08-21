@@ -1,0 +1,10 @@
+<repositories encoding="unicode" version="0.1">
+  <repo quality="experimental">
+    <name>julia-portage</name>
+    <description />
+    <owner type="project">
+      <name>julia-gentoo<name/>
+    </owner>
+    <source type="git">git://github.com/JKrehl/julia-portage.git</source>
+  </repo>
+</repositories>
