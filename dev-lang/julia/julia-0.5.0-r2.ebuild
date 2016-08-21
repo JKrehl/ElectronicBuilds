@@ -8,11 +8,13 @@ RESTRICT="test"
 
 inherit elisp-common eutils multilib pax-utils toolchain-funcs
 
+CPVR=${PVR/r/rc}
+CP=$PN-$CPVR
+
 DESCRIPTION="High-performance programming language for technical computing"
 HOMEPAGE="http://julialang.org/"
 SRC_URI="
-	https://github.com/JuliaLang/${PN}/releases/download/v${PV}/${P}.tar.gz
-	https://dev.gentoo.org/~tamiko/distfiles/${P}-bundled.tar.gz
+	https://github.com/JuliaLang/${PN}/releases/download/v${CPVR}/${CP}.tar.gz
 "
 
 LICENSE="MIT"
@@ -48,18 +50,11 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 PATCHES=(
-	"${FILESDIR}"/${P}-fix_build_system.patch
+	#"${FILESDIR}"/${P}-fix_build_system.patch
 )
 
 src_prepare() {
-	mv "${WORKDIR}"/bundled/dsfmt-2.2.3.tar.gz deps/ || die
-	mv "${WORKDIR}"/bundled/libuv-efb40768b7c7bd9f173a7868f74b92b1c5a61a0e.tar.gz deps/ || die
-	mv "${WORKDIR}"/bundled/pcre2-10.20.tar.bz2 deps/ || die
-	mv "${WORKDIR}"/bundled/Rmath-julia-0.1.tar.gz deps/ || die
-	mv "${WORKDIR}"/bundled/utf8proc-85789180158ac7fff85b9f008828d6ac44f072ea.tar.gz deps/ || die
-	rmdir "${WORKDIR}"/bundled || die
-
-	epatch "${PATCHES[@]}"
+	#epatch "${PATCHES[@]}"
 
 	# Sledgehammer:
 	# - prevent fetching of bundled stuff in compile and install phase
