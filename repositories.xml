@@ -2,17 +2,16 @@
 <!DOCTYPE repositories SYSTEM "http://www.gentoo.org/dtd/repositories.dtd">
 <repositories xmlns="" version="1.0">
   <repo quality="experimental" status="unofficial">
-    <name>julia-portage</name>
-    <description lang="en">overlay for julia ebuilds</description>
-    <homepage>https://github.com/JKrehl/julia-portage</homepage>
-    <owner type="person">
-        <name>JKrehl</name>
-        <email>https://github.com/JKrehl</email>    
-    </owner>
-    <source type="git">https://anongit.gentoo.org/git/JKrehl/julia-portage.git</source>
-    <source type="git">git://anongit.gentoo.org/JKrehl/julia-portage.git</source>
-    <source type="git">git+ssh://git@git.gentoo.org/JKrehl/julia-portage.git</source>
-    <feed>https://cgit.gentoo.org/JKrehl/julia-portage/atom/</feed>
-
+      <name>julia-gentoo</name>
+      <description lang="en">layman overlay for julia builds</description>
+      <homepage>https://github.com/JKrehl/julia-gentoo</homepage>
+      <owner type="person">
+          <email>https://github.com/JKrehl</email>
+          <name>JKrehl</name>
+      </owner>
+      <source type="git">https://github.com/JKrehl/julia-portage.git</source>
+      <source type="git">git://github.com/JKrehl/julia-portage.git</source>
+      <source type="git">git@github.com:JKrehl/julia-portage.git</source>
+      <feed>https://github.com/JKrehl/julia-portage/commits/master.atom</feed>
   </repo>
 </repositories>
