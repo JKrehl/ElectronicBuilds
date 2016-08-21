@@ -1,9 +1,14 @@
-<repositories encoding="unicode" version="0.1">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE repositories SYSTEM "http://www.gentoo.org/dtd/repositories.dtd">
+<repositories xmlns="" version="1.0">
+
+<repositories encoding="unicode" version="1.0">
   <repo quality="experimental">
     <name>julia-portage</name>
     <description />
     <owner type="project">
-      <name>julia-gentoo<name/>
+        <name>julia-gentoo<name/>
+        <email>julia-gentoo@gentoo.org<email/>    
     </owner>
     <source type="git">git://github.com/JKrehl/julia-portage.git</source>
   </repo>
