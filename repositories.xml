@@ -5,10 +5,10 @@
 <repositories encoding="unicode" version="1.0">
   <repo quality="experimental">
     <name>julia-portage</name>
-    <description />
+    <description>overlay for julia ebuilds</description>
     <owner type="project">
-        <name>julia-gentoo<name/>
-        <email>julia-gentoo@gentoo.org<email/>    
+        <name>julia-gentoo</name>
+        <email>julia-gentoo@gentoo.org</email>    
     </owner>
     <source type="git">git://github.com/JKrehl/julia-portage.git</source>
   </repo>
