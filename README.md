@@ -8,3 +8,5 @@ Add the repo to layman via
 layman -o  https://raw.github.com/JKrehl/julia-portage/master/repositories.xml -f -a julia-portage
 ```
 and thats it.
+
+Abandoned because configuration of julia is just too complicated.
