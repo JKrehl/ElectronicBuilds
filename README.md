@@ -9,4 +9,3 @@ layman -o  https://raw.github.com/JKrehl/julia-portage/master/repositories.xml -
 ```
 and thats it.
 
-Abandoned because configuration of julia is just too complicated.

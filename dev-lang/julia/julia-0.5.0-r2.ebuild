@@ -14,13 +14,15 @@ CP=$PN-$CPVR
 DESCRIPTION="High-performance programming language for technical computing"
 HOMEPAGE="http://julialang.org/"
 SRC_URI="
-	https://github.com/JuliaLang/${PN}/releases/download/v${CPVR}/${CP}.tar.gz -> ${P}.tar.gz
+	https://github.com/JuliaLang/${PN}/releases/download/v${CPVR}/${CP}.tar.gz
+	https://dev.gentoo.org/~tamiko/distfiles/julia-0.4.3-bundled.tar.gz
 "
+S=$WORKDIR/$CP
 
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="emacs"
+IUSE="mkl"
 
 RDEPEND="
 	dev-lang/R:0=
@@ -43,18 +45,26 @@ RDEPEND="
 	sys-libs/zlib:0=
 	virtual/blas
 	virtual/lapack
-	emacs? ( app-emacs/ess )"
+	mkl? ( sci-libs/mkl )"
 
 DEPEND="${RDEPEND}
 	dev-util/patchelf
 	virtual/pkgconfig"
 
 PATCHES=(
-	#"${FILESDIR}"/${P}-fix_build_system.patch
+	"${FILESDIR}/${PN}-${PVR}-fix_build_system.patch"
 )
 
-src_prepare() {
-	#epatch "${PATCHES[@]}"
+src_prepare() {	
+	mv "${WORKDIR}"/bundled/dsfmt-2.2.3.tar.gz deps/ || die
+	mv "${WORKDIR}"/bundled/libuv-efb40768b7c7bd9f173a7868f74b92b1c5a61a0e.tar.gz deps/ || die
+	mv "${WORKDIR}"/bundled/pcre2-10.20.tar.bz2 deps/ || die
+	#mv "${WORKDIR}"/bundled/Rmath-julia-0.1.tar.gz deps/ || die
+	rm "${WORKDIR}"/bundled/Rmath-julia-0.1.tar.gz
+	mv "${WORKDIR}"/bundled/utf8proc-85789180158ac7fff85b9f008828d6ac44f072ea.tar.gz deps/ || die
+	rmdir "${WORKDIR}"/bundled || die
+
+	epatch "${PATCHES[@]}"
 
 	# Sledgehammer:
 	# - prevent fetching of bundled stuff in compile and install phase
@@ -128,8 +138,9 @@ src_configure() {
 		USE_SYSTEM_SUITESPARSE=1
 		USE_SYSTEM_ZLIB=1
 		VERBOSE=1
+		USE_LLVM_SHLIB=0
 	EOF
-
+	
 }
 
 src_compile() {
@@ -137,8 +148,7 @@ src_compile() {
 	emake julia-release \
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
 	pax-mark m $(file usr/bin/julia-* | awk -F : '/ELF/ {print $1}')
-	emake
-	use emacs && elisp-compile contrib/julia-mode.el
+	#emake
 }
 
 src_test() {
@@ -153,17 +163,13 @@ src_install() {
 	EOF
 	doenvd 99julia
 
-	if use emacs; then
-		elisp-install "${PN}" contrib/julia-mode.el
-		elisp-site-file-install "${FILESDIR}"/63julia-gentoo.el
-	fi
 	dodoc README.md
 
 	mv "${ED}"/usr/etc/julia "${ED}"/etc || die
 	rmdir "${ED}"/usr/etc || die
 	rmdir "${ED}"/usr/libexec || die
 	mv "${ED}"/usr/share/doc/julia/{examples,html} \
-		"${ED}"/usr/share/doc/${P} || die
+		"${ED}"/usr/share/doc/${PN}-${PVR} || die
 	rmdir "${ED}"/usr/share/doc/julia || die
 	if [[ $(get_libdir) != lib ]]; then
 		mkdir -p "${ED}"/usr/$(get_libdir) || die
@@ -171,10 +177,8 @@ src_install() {
 	fi
 }
 
-pkg_postinst() {
-	use emacs && elisp-site-regen
-}
+#pkg_postinst() {
+#}
 
-pkg_postrm() {
-	use emacs && elisp-site-regen
-}
+#pkg_postrm() {
+#}
