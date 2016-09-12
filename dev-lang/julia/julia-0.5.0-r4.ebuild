@@ -144,6 +144,7 @@ src_configure() {
 }
 
 src_compile() {
+	addwrite "/proc/self/mem"
 	emake cleanall
 	emake julia-release \
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
