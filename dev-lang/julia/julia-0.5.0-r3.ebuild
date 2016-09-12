@@ -56,7 +56,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-${PVR}-fix_build_system.patch"
 )
 
-src_prepare() {	
+src_prepare() {
 	mv "${WORKDIR}"/bundled/dsfmt-2.2.3.tar.gz deps/ || die
 	mv "${WORKDIR}"/bundled/libuv-efb40768b7c7bd9f173a7868f74b92b1c5a61a0e.tar.gz deps/ || die
 	mv "${WORKDIR}"/bundled/pcre2-10.20.tar.bz2 deps/ || die
@@ -141,7 +141,6 @@ src_configure() {
 		VERBOSE=1
 		USE_LLVM_SHLIB=0
 	EOF
-	
 }
 
 src_compile() {
