@@ -8,17 +8,13 @@ RESTRICT="test"
 
 inherit elisp-common eutils multilib pax-utils toolchain-funcs
 
-CPVR=${PVR/r/rc}
-CP=$PN-$CPVR
-
 DESCRIPTION="High-performance programming language for technical computing"
 HOMEPAGE="http://julialang.org/"
 SRC_URI="
-	#https://github.com/JuliaLang/${PN}/releases/download/v${CPVR}/${CP}.tar.gz
-	https://github.com/JuliaLang/${PN}/archive/v${CPVR}/${CP}.tar.gz
+	https://github.com/JuliaLang/${PN}/releases/download/v${PVR/_rc/-rc}/${P/_rc/-rc}.tar.gz
 	https://dev.gentoo.org/~tamiko/distfiles/julia-0.4.3-bundled.tar.gz
 "
-S=$WORKDIR/$CP
+S=$WORKDIR/${P/_rc/-rc}
 
 LICENSE="MIT"
 SLOT="0"
