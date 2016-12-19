@@ -17,8 +17,8 @@ SRC_URI="
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="mkl mkl_fft polly"
-REQUIRED_USE="mkl_fft? ( mkl )"
+IUSE="mkl mkl_fft polly mkl_ilp64"
+REQUIRED_USE="mkl_fft? ( mkl ) mkl_ilp64? ( mkl )"
 
 RDEPEND="
 	>=sys-devel/llvm-3.7:0=
@@ -55,20 +55,28 @@ PATCHES=(
 
 src_prepare() {
 	eapply_user
-	
+
+	local libblas="$($(tc-getPKG_CONFIG) --libs-only-l blas)"
+	libblas="${libblas%% *}"
+	libblas="lib${libblas#-l}"
+	local liblapack="$($(tc-getPKG_CONFIG) --libs-only-l lapack)"
+	liblapack="${liblapack%% *}"
+	liblapack="lib${liblapack#-l}"
+
 	sed -i \
 		-e "s|\(JULIA_EXECUTABLE = \)\(\$(JULIAHOME)/julia\)|\1 LD_LIBRARY_PATH=\$(build_prefix)/$(get_libdir) \2|" \
+		-e "s|LIBDIR = lib|LIBDIR = $(get_libdir)|" \
 		-e "s|/usr/lib|${EPREFIX}/usr/$(get_libdir)|" \
 		-e "s|/usr/include|${EPREFIX}/usr/include|" \
 		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|" \
 		-e "s|^JULIA_COMMIT = .*|JULIA_COMMIT = v${PV}|" \
 		Make.inc || die
-	
+
 	sed -i \
 		-e "s|,lib)|,$(get_libdir))|g" \
 		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|g" \
 		Makefile || die
-		
+
 	sed -i \
 		-e "s|-rm -rf _build/\*|@echo \"Do not clean doc/_build/html. Just use it...\"|g" \
 		doc/Makefile || die
@@ -109,47 +117,35 @@ src_configure() {
 		USE_SYSTEM_PATCHELF=1
 		VERBOSE=1
 	EOF
-	
-	#echo "LLVMLINK = \$(shell \$(LLVM_CONFIG_HOST) --ldflags) \$(shell \$(LLVM_CONFIG_HOST) --libs)" >> src/Make.user
-	
+
 	if tc-is-clang; then
 		echo "USE_CLANG = 1" >> Make.user
 	fi
-	
-	echo "libdir=${EROOT}/usr/$(get_libdir)" >> Make.user
-	echo "LIBDIR=$(get_libdir)" >> Make.user
-	echo "SHIPFLAGS = ${CFLAGS}" >> Make.user
+
+	#echo "SHIPFLAGS = ${CFLAGS}" >> Make.user
 	echo "NO_GIT = 1" >> Make.user
-	
-	local libblas="$($(tc-getPKG_CONFIG) --libs-only-l blas)"
-	libblas="${libblas%% *}"
-	libblas="lib${libblas#-l}"
-	local liblapack="$($(tc-getPKG_CONFIG) --libs-only-l lapack)"
-	liblapack="${liblapack%% *}"
-	liblapack="lib${liblapack#-l}"
-	
-	echo "LIBBLAS = $($(tc-getPKG_CONFIG) --libs blas)" >> Make.user
-	echo "LIBBLASNAME = ${libblas}" >> Make.user
-	echo "LIBLAPACK = $($(tc-getPKG_CONFIG) --libs blas)" >> Make.user
-	echo "LIBLAPACKNAME = ${liblapack}" >> Make.user
-	
+
 	if use mkl; then
 		echo "USE_INTEL_MKL = 1" >> Make.user
 	fi
-	
+
+	if use mkl_ilp64; then
+		echo "USE_BLAS64 = 1" >> Make.user
+	fi
+
 	if use mkl_fft; then
 		echo "USE_INTEL_MKL_FFT  = 1" >> Make.user
 	fi
-	
+
 	if use polly; then
 		echo "USE_POLLY  = 1" >> Make.user
 	fi
-	
+
 }
 
 src_compile() {
 	addpredict /proc/self/mem
-	
+
 	emake cleanall
 	emake julia-release \
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die "make failed"
