@@ -17,8 +17,8 @@ SRC_URI="
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="mkl mkl_fft polly mkl_ilp64"
-REQUIRED_USE="mkl_fft? ( mkl ) mkl_ilp64? ( mkl )"
+IUSE="mkl mkl_fft polly int64"
+REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
 
 RDEPEND="
 	>=sys-devel/llvm-3.7:0=
@@ -56,10 +56,16 @@ PATCHES=(
 src_prepare() {
 	eapply_user
 
-	local libblas="$($(tc-getPKG_CONFIG) --libs-only-l blas)"
+	if use int64; then
+		local libblas="$($(tc-getPKG_CONFIG) --libs-only-l blas-int64)"
+		local liblapack="$($(tc-getPKG_CONFIG) --libs-only-l lapack-int64)"
+	else
+		local libblas="$($(tc-getPKG_CONFIG) --libs-only-l blas)"
+		local liblapack="$($(tc-getPKG_CONFIG) --libs-only-l lapack)"
+	fi
+
 	libblas="${libblas%% *}"
 	libblas="lib${libblas#-l}"
-	local liblapack="$($(tc-getPKG_CONFIG) --libs-only-l lapack)"
 	liblapack="${liblapack%% *}"
 	liblapack="lib${liblapack#-l}"
 
@@ -127,10 +133,11 @@ src_configure() {
 
 	if use mkl; then
 		echo "USE_INTEL_MKL = 1" >> Make.user
-	fi
-
-	if use mkl_ilp64; then
-		echo "USE_BLAS64 = 1" >> Make.user
+		if use int64; then
+			echo "USE_BLAS64 = 1" >> Make.user
+		else
+			echo "USE_BLAS64 = 0" >> Make.user
+		fi
 	fi
 
 	if use mkl_fft; then
