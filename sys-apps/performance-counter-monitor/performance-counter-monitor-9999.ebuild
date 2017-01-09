@@ -18,9 +18,10 @@ RDEPEND=">=sys-devel/gcc-4:*"
 
 DEPEND="${RDEPEND}"
 
-#src_configure() {
+src_configure() {
+	sed -i 's/CXXFLAGS += -DPCM_USE_PERF/#CXXFLAGS += -DPCM_USE_PERF/'  Makefile || die
 #	cmake-utils_src_configure
-#}
+}
 
 src_install() {
 	exeinto /usr/bin
