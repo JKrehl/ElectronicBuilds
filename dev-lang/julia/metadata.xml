@@ -4,6 +4,6 @@
 <longdescription lang="en">
 </longdescription>
 <use>
-<flag name="mkl"> use INTEL MKL, currently striclty assumed </flag>
+<flag name="mkl"> use INTEL MKL </flag>
 </use>
 </pkgmetadata>
