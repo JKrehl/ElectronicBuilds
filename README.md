@@ -5,6 +5,6 @@ Overlay for portage for the Julia language.
 
 Add the repo to layman via
 ```bash
-layman -o  https://raw.github.com/JKrehl/ElectronicBuilds/master/repositories.xml -f -a julia-portage
+layman -o  https://raw.github.com/JKrehl/ElectronicBuilds/master/repositories.xml -f -a ElectronicBuilds
 ```
 and thats it.
