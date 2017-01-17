@@ -2,16 +2,16 @@
 <!DOCTYPE repositories SYSTEM "http://www.gentoo.org/dtd/repositories.dtd">
 <repositories xmlns="" version="1.0">
   <repo quality="experimental" status="unofficial">
-      <name>julia-portage</name>
+      <name>ElectronicBuilds</name>
       <description lang="en">layman overlay for julia builds</description>
-      <homepage>https://github.com/JKrehl/julia-portage</homepage>
+      <homepage>https://github.com/JKrehl/ElectronicBuilds</homepage>
       <owner type="person">
           <email>https://github.com/JKrehl</email>
           <name>JKrehl</name>
       </owner>
-      <source type="git">https://github.com/JKrehl/julia-portage.git</source>
-      <source type="git">git://github.com/JKrehl/julia-portage.git</source>
-      <source type="git">git@github.com:JKrehl/julia-portage.git</source>
-      <feed>https://github.com/JKrehl/julia-portage/commits/master.atom</feed>
+      <source type="git">https://github.com/JKrehl/ElectronicBuilds.git</source>
+      <source type="git">git://github.com/JKrehl/ElectronicBuilds.git</source>
+      <source type="git">git@github.com:JKrehl/ElectronicBuilds.git</source>
+      <feed>https://github.com/JKrehl/ElectronicBuilds/commits/master.atom</feed>
   </repo>
 </repositories>
