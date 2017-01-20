@@ -1,0 +1,12 @@
+diff --git a/src/Makefile b/src/Makefile
+index d7ec864..ca16625 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -57,0 +58 @@ FLAGS += -I$(shell $(LLVM_CONFIG_HOST) --src-root)/tools/polly/include
++FLAGS += -fopenmp
+diff --git a/src/codegen.cpp b/src/codegen.cpp
+index f84d395..49bf84e 100644
+--- a/src/codegen.cpp
++++ b/src/codegen.cpp
+@@ -5636,0 +5637 @@ extern "C" void jl_init_codegen(void)
++    cl::ParseEnvironmentOptions("Julia", "JULIA_POLLY_ARGS");

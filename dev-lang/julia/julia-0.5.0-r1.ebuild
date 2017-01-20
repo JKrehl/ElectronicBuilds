@@ -49,11 +49,9 @@ DEPEND="${RDEPEND}
 	dev-util/patchelf
 	virtual/pkgconfig"
 
-PATCHES=(
-	""
-)
-
 src_prepare() {
+	use polly && tc-check-openmp && eapply "${FILESDIR}/${PN}-${PVR}-polly-openmp.patch"
+
 	eapply_user
 
 	if use int64; then
@@ -172,6 +170,7 @@ src_install() {
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
 	cat > 99julia <<-EOF
 		LDPATH=${EROOT%/}/usr/$(get_libdir)/julia
+		JULIA_POLLY_ARGS="-polly-parallel -polly-vectorizer=polly"
 	EOF
 	doenvd 99julia
 
