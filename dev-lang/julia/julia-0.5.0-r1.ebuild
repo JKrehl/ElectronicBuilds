@@ -125,8 +125,10 @@ src_configure() {
 	EOF
 
 	if tc-is-clang; then
-		echo "USE_CLANG = 1" >> Make.user
+		echo "USECLANG = 1" >> Make.user
 	fi
+
+
 
 	#echo "SHIPFLAGS = ${CFLAGS}" >> Make.user
 	echo "NO_GIT = 1" >> Make.user
