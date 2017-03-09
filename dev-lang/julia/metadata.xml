@@ -8,5 +8,6 @@
 <flag name="mkl_fft"> use INTEL MKL his FFT </flag>
 <flag name="polly"> use POLLY </flag>
 <flag name="int64"> use the int64 interface of the BLAS</flag>
+<flag name="jitevents"> activate emission of Intel JIT events vot vtune</flag>
 </use>
 </pkgmetadata>

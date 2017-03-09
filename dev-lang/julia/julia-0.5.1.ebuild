@@ -17,12 +17,12 @@ SRC_URI="
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="mkl mkl_fft polly int64 jitevents"
+IUSE="mkl mkl_fft int64 polly jitevents"
 REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
 
 RDEPEND="
 	>=sys-devel/llvm-3.7:0=
-	dev-libs/libuv:0=
+	dev-libs/libuv:0=[static-libs]
 	sci-libs/openlibm:0=
 	dev-libs/openspecfun:0=
 	virtual/blas
@@ -50,23 +50,24 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 src_prepare() {
-	use polly && tc-check-openmp && eapply "${FILESDIR}/${PN}-${PVR}-polly-openmp.patch"
-
 	eapply_user
 
 	sed -i \
-		-e "s|\(JULIA_EXECUTABLE = \)\(\$(JULIAHOME)/julia\)|\1 LD_LIBRARY_PATH=\$(build_prefix)/$(get_libdir) \2|" \
-		-e "s|LIBDIR = lib|LIBDIR = $(get_libdir)|" \
 		-e "s|/usr/lib|${EPREFIX}/usr/$(get_libdir)|" \
 		-e "s|/usr/include|${EPREFIX}/usr/include|" \
 		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|" \
 		-e "s|^JULIA_COMMIT = .*|JULIA_COMMIT = v${PV}|" \
+		-e "s|libuv-julia.a|libuv.a|" \
 		Make.inc || die
 
 	sed -i \
 		-e "s|,lib)|,$(get_libdir))|g" \
 		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|g" \
 		Makefile || die
+
+	sed -i \
+		-e "s|\$(build_includedir)/uv-errno.h|\$(LIBUV_INC)/uv-errno.h|" \
+		base/Makefile || die
 
 	sed -i \
 		-e "s|-rm -rf _build/\*|@echo \"Do not clean doc/_build/html. Just use it...\"|g" \
@@ -81,8 +82,11 @@ src_prepare() {
 #-e "s|-lLLVM-\$(shell $(LLVM_CONFIG_HOST) --version)|\$(shell \$(LLVM_CONFIG_HOST) --libs)|g" \
 
 src_configure() {
-	# julia does not play well with the system versions of
-	# dsfmt, libuv, pcre2 and utf8proc
+	cat <<-EOF > Make.user
+		LD_LIBRARY_PATH=$(get_libdir)
+	EOF
+
+
 	cat <<-EOF > Make.user
 		USE_SYSTEM_LLVM=1
 		USE_SYSTEM_LIBUNWIND=1
@@ -174,7 +178,6 @@ src_install() {
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
 	cat > 99julia <<-EOF
 		LDPATH=${EROOT%/}/usr/$(get_libdir)/julia
-		JULIA_POLLY_ARGS="-polly-parallel -polly-vectorizer=polly"
 	EOF
 	doenvd 99julia
 
