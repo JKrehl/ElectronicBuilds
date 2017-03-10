@@ -70,9 +70,9 @@ src_prepare() {
 		base/Makefile || die
 
 	sed -i \
+		-e "s|-rm -rf _build/\*.*$|@echo \"Do not clean doc/_build/html. Just use it...\"|g" \
 		-e "s|\(\$(JULIA_EXECUTABLE) \$(call cygpath_w,\$(SRCDIR)/make.jl) -- deploy.*\)$|#\1|"\
 		doc/Makefile || die
-		#-e "s|-rm -rf _build/\*.*$|@echo \"Do not clean doc/_build/html. Just use it...\"|g" \
 
 	sed -i \
 		-e "s|ar -rcs|$(tc-getAR) -rcs|g" \
