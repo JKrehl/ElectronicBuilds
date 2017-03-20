@@ -24,7 +24,7 @@ RDEPEND="
     >=dev-python/numpy-1.10
     >=sci-libs/scipy-0.15
     >=dev-python/matplotlib-1.2
-    dev-python/h5py
+    >=dev-python/h5py-2.6.0
     sci-libs/scikits_image
     dev-python/ipython
     dev-python/natsort
