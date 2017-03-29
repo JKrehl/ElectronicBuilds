@@ -22,7 +22,7 @@ IUSE="mkl mkl_fft int64 polly jitevents"
 REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
 
 RDEPEND="
-	>=sys-devel/llvm-3.7:0=
+	>=sys-devel/llvm-3.7:=
 	sci-libs/openlibm:0=
 	dev-libs/openspecfun:0=
 	virtual/blas
