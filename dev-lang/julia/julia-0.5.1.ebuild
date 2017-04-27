@@ -29,7 +29,7 @@ RDEPEND="
 	mkl? ( sci-libs/mkl )
 	>=sci-libs/suitesparse-4.1:0=
 	sci-libs/arpack:0=
-	>=sci-libs/fftw-3.3:=
+	!mkl_fft? ( >=sci-libs/fftw-3.3:=[threads] )
 	>=dev-libs/libpcre2-10.0:0=
 	>=dev-libs/gmp-5.0:0=
 	>=dev-libs/mpfr-3.0:0=
