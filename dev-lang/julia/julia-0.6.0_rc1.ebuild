@@ -183,7 +183,6 @@ src_install() {
 
 	mv "${ED}"/usr/etc/julia "${ED}"/etc || die
 	rmdir "${ED}"/usr/etc || die
-	rmdir "${ED}"/usr/libexec || die
 	mv "${ED}"/usr/share/doc/julia/{examples,html} \
 		"${ED}"/usr/share/doc/${PN}-${PVR} || die
 	rmdir "${ED}"/usr/share/doc/julia || die
