@@ -11,9 +11,10 @@ inherit elisp-common eutils multilib pax-utils toolchain-funcs
 DESCRIPTION="High-performance programming language for technical computing"
 HOMEPAGE="http://julialang.org/"
 SRC_URI="
-	https://github.com/JuliaLang/${PN}/releases/download/v${PVR/_rc/-rc}/${P/_rc/-rc}.tar.gz
+	https://github.com/JuliaLang/${PN}/releases/download/v$PVR/$P.tar.gz
 "
-S=$WORKDIR/${P/_rc/-rc}
+
+S=$WORKDIR/$P
 
 LICENSE="MIT"
 SLOT="0"
@@ -62,7 +63,7 @@ src_prepare() {
 
 	sed -i \
 		-e "s|,lib)|,$(get_libdir))|g" \
-		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|g" \
+		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|" \
 		Makefile || die
 
 	sed -i \
@@ -70,14 +71,14 @@ src_prepare() {
 		base/Makefile || die
 
 	sed -i \
-		-e "s|-rm -rf _build/\*.*$|@echo \"Do not clean doc/_build/html. Just use it...\"|g" \
-		-e "s|\(\$(JULIA_EXECUTABLE) \$(call cygpath_w,\$(SRCDIR)/make.jl) -- deploy.*\)$|#\1|"\
+		-e "s|-rm -rf _build/\* deps/\* docbuild.log UnicodeData.txt|@echo \"Do not clean doc/_build/html. Just use it...\"|" \
+		-e "s|default: html|default: |"\
 		doc/Makefile || die
 
 	sed -i \
-		-e "s|ar -rcs|$(tc-getAR) -rcs|g" \
-		-e "s|-lLLVM-\$(shell \$(LLVM_CONFIG_HOST) --version)|\$(shell \$(LLVM_CONFIG_HOST) --libs)|g" \
-		-e "s|-lLLVM$|\$(shell \$(LLVM_CONFIG_HOST) --libs)|g" \
+		-e "s|ar -rcs|$(tc-getAR) -rcs|" \
+		-e "s|-lLLVM-\$(shell \$(LLVM_CONFIG_HOST) --version)|\$(shell \$(LLVM_CONFIG_HOST) --libs)|" \
+		-e "s|-lLLVM$|\$(shell \$(LLVM_CONFIG_HOST) --libs)|" \
 		src/Makefile || die
 }
 
@@ -154,14 +155,13 @@ src_configure() {
 	if use jitevents; then
 		echo "USE_INTEL_JITEVENTS = 1" >> Make.user
 	fi
-
 }
 
 src_compile() {
 	addpredict /proc/self/mem
 
-	emake cleanall
-	emake julia-release \
+	emake clean
+	emake release \
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die "make failed"
 	pax-mark m $(file usr/bin/julia-* | awk -F : '/ELF/ {print $1}')
 	emake
