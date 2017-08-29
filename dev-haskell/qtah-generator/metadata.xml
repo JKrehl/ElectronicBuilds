@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<email>haskell@gentoo.org</email>
+		<name>Gentoo Haskell</name>
+	</maintainer>
+	<longdescription>
+		Qtah is a set of Qt bindings for Haskell.  This package is a Hoppy FFI
+		generator.  You shouldn&#39;t need it directly; rather, qtah-cpp and qtah use it
+		as part of their build processes.
+	</longdescription>
+</pkgmetadata>
