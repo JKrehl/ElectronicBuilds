@@ -21,33 +21,33 @@ IUSE=""
 REQUIRED_USE=""
 
 RDEPEND="
-    >=dev-python/numpy-1.10
-    >=sci-libs/scipy-0.15
-    >=dev-python/matplotlib-1.2
-    >=dev-python/h5py-2.6.0
-    sci-libs/scikits_image
-    dev-python/ipython
-    dev-python/natsort
-    >=dev-python/traits-4.5.0
-    >=dev-python/traitsui-4.5.0
-    dev-python/requests
-    >=dev-python/tqdm-0.4.9
-    dev-python/ipyparallel
-    dev-python/python-dateutil
-    dev-python/nose
-    >=dev-python/dask-0.13.0
+	>=dev-python/numpy-1.10
+	>=sci-libs/scipy-0.15
+	>=dev-python/matplotlib-1.2
+	>=dev-python/h5py-2.6.0
+	sci-libs/scikits_image
+	dev-python/ipython
+	dev-python/natsort
+	>=dev-python/traits-4.5.0
+	>=dev-python/traitsui-4.5.0
+	dev-python/requests
+	>=dev-python/tqdm-0.4.9
+	dev-python/ipyparallel
+	dev-python/python-dateutil
+	dev-python/nose
+	>=dev-python/dask-0.13.0
 "
 
 DEPEND="${RDEPEND}"
 
 python_prepare_all() {
-    distutils-r1_python_prepare_all
+	distutils-r1_python_prepare_all
 }
 
 python_install() {
-    distutils-r1_python_install
+	distutils-r1_python_install
 }
 
 python_install_all() {
-    distutils-r1_python_install_all
+	distutils-r1_python_install_all
 }

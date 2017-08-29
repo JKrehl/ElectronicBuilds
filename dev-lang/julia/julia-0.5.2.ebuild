@@ -1,4 +1,4 @@
-# Copyright 1999-2016 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -84,7 +84,6 @@ src_configure() {
 	cat <<-EOF > Make.user
 		LD_LIBRARY_PATH=$(get_libdir)
 	EOF
-
 
 	cat <<-EOF > Make.user
 		USE_SYSTEM_LLVM=1
