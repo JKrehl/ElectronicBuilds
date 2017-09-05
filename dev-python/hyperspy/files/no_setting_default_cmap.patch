@@ -1,0 +1,10 @@
+diff --git a/hyperspy/drawing/__init__.py b/hyperspy/drawing/__init__.py
+index 680e8969..1bdc9285 100644
+--- a/hyperspy/drawing/__init__.py
++++ b/hyperspy/drawing/__init__.py
+@@ -19,4 +19,4 @@
+ 
+ import matplotlib
+ 
+-matplotlib.rcParams["image.cmap"] = "gray"
++# matplotlib.rcParams["image.cmap"] = "gray"
