@@ -26,3 +26,7 @@ DEPEND="${RDEPEND}
 	>=dev-haskell/cabal-1.18.1.3
 	test? ( >=dev-haskell/hunit-1.2 <dev-haskell/hunit-1.6 )
 "
+src_configure() {
+	sed -i 's/extra-libraries: qtah/-- extra-libraries: qtah/'  qtah-qt5.cabal || die
+	haskell-cabal_src_configure
+}
