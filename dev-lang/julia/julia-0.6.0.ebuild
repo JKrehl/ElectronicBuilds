@@ -190,9 +190,3 @@ src_install() {
 		mv "${ED}"/usr/lib/julia "${ED}"/usr/$(get_libdir)/julia || die
 	fi
 }
-
-#pkg_postinst() {
-#}
-
-#pkg_postrm() {
-#}
