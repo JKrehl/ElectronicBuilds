@@ -51,6 +51,14 @@ DEPEND="${RDEPEND}
 	dev-util/patchelf
 	virtual/pkgconfig"
 
+src_unpack() {
+    if [ "${A}" != "" ]; then
+        unpack ${A}
+    fi
+
+    mv "${WORKDIR}/${PN}" ${S} || die
+}
+
 src_prepare() {
 	eapply_user
 
