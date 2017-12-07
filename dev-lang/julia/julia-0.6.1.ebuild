@@ -1,6 +1,5 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
 
@@ -13,8 +12,6 @@ HOMEPAGE="http://julialang.org/"
 SRC_URI="
 	https://github.com/JuliaLang/${PN}/releases/download/v$PVR/$P.tar.gz
 "
-
-S=$WORKDIR/$P
 
 LICENSE="MIT"
 SLOT="0"
@@ -39,7 +36,7 @@ RDEPEND="
 	>=net-misc/curl-7.50:0=
 	>=net-libs/libssh2-1.7:0=
 	>=net-libs/mbedtls-2.2:0=
-	sys-libs/libunwind:=
+	>=sys-libs/libunwind-1.1:7=
 	<sys-libs/libunwind-1.2.1
 	dev-python/sphinx[python_targets_python2_7]"
 
@@ -51,16 +48,25 @@ DEPEND="${RDEPEND}
 	dev-util/patchelf
 	virtual/pkgconfig"
 
-src_unpack() {
-    if [ "${A}" != "" ]; then
-        unpack ${A}
-    fi
+LLVM_MAX_SLOT=4
 
-    mv "${WORKDIR}/${PN}" ${S} || die
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.6-fix_build_system.patch
+)
+
+S=$WORKDIR/$P
+
+
+src_unpack() {
+	if [ "${A}" != "" ]; then
+		unpack ${A}
+	fi
+
+	mv "${WORKDIR}/${PN}" ${S} || die
 }
 
 src_prepare() {
-	eapply_user
+	default
 
 	sed -i \
 		-e "s|/usr/lib|${EPREFIX}/usr/$(get_libdir)|" \
@@ -88,8 +94,6 @@ src_prepare() {
 
 	sed -i \
 		-e "s|ar -rcs|$(tc-getAR) -rcs|" \
-		-e "s|-lLLVM-\$(shell \$(LLVM_CONFIG_HOST) --version)|\$(shell \$(LLVM_CONFIG_HOST) --libs)|" \
-		-e "s|-lLLVM$|\$(shell \$(LLVM_CONFIG_HOST) --libs)|" \
 		src/Makefile || die
 }
 
@@ -123,7 +127,7 @@ src_configure() {
 		USE_SYSTEM_PATCHELF=1
 		VERBOSE=1
 		libdir="${EROOT}/usr/$(get_libdir)"
-        SHIPFLAGS = ${CFLAGS}
+		SHIPFLAGS = ${CFLAGS}
 	EOF
 
 	if tc-is-clang; then
