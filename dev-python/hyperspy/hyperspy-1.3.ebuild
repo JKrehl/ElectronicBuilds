@@ -1,6 +1,5 @@
 # Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=5
 
@@ -28,20 +27,23 @@ RDEPEND="
 	sci-libs/scikits_image
 	dev-python/ipython
 	dev-python/natsort
-	>=dev-python/traits-4.5.0
-	>=dev-python/traitsui-4.5.0
+	>=dev-python/traits-4.6.0
 	dev-python/requests
 	>=dev-python/tqdm-0.4.9
 	dev-python/ipyparallel
 	dev-python/python-dateutil
 	dev-python/nose
 	>=dev-python/dask-0.13.0
+	>=dev-python/pint-0.7
+	dev-python/sympy
+	dev-python/dill
+	dev-python/statsmodels
 "
 
 DEPEND="${RDEPEND}"
 
 PATCHES=(
-    "${FILESDIR}"/no_setting_default_cmap.patch
+	"${FILESDIR}"/no_setting_default_cmap.patch
 )
 
 python_prepare_all() {
