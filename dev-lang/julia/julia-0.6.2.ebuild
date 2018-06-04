@@ -1,4 +1,4 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -20,7 +20,8 @@ IUSE="mkl mkl_fft int64 polly jitevents"
 REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
 
 RDEPEND="
-	>=sys-devel/llvm-3.7:=
+	sys-devel/llvm:4=
+	sys-devel/clang:4=
 	sci-libs/openlibm:0=
 	dev-libs/openspecfun:0=
 	virtual/blas
@@ -29,10 +30,10 @@ RDEPEND="
 	>=sci-libs/suitesparse-4.1:0=
 	sci-libs/arpack:0=
 	!mkl_fft? ( >=sci-libs/fftw-3.3:=[threads] )
-	>=dev-libs/libpcre2-10.0:0=
+	>=dev-libs/libpcre2-10.0:0=[jit]
 	>=dev-libs/gmp-5.0:0=
 	>=dev-libs/mpfr-3.0:0=
-	>=dev-libs/libgit2-0.23:0=
+	>=dev-libs/libgit2-0.25:0=
 	>=net-misc/curl-7.50:0=
 	>=net-libs/libssh2-1.7:0=
 	>=net-libs/mbedtls-2.2:0=
@@ -41,10 +42,7 @@ RDEPEND="
 	dev-python/sphinx[python_targets_python2_7]"
 
 DEPEND="${RDEPEND}
-	dev-lang/python:2.7
-	sys-devel/gcc[fortran]
-	dev-lang/perl
-	sys-devel/m4
+	dev-vcs/git
 	dev-util/patchelf
 	virtual/pkgconfig"
 
@@ -91,6 +89,9 @@ src_prepare() {
 	sed -i \
 		-e "s|ar -rcs|$(tc-getAR) -rcs|" \
 		src/Makefile || die
+
+	# disable doc install starting  git fetching
+	sed -i -e 's~install: $(build_depsbindir)/stringreplace $(BUILDROOT)/doc/_build/html/en/index.html~install: $(build_depsbindir)/stringreplace~' Makefile || die
 }
 
 src_configure() {
@@ -170,9 +171,11 @@ src_configure() {
 }
 
 src_compile() {
+
+	# Julia accesses /proc/self/mem on Linux
 	addpredict /proc/self/mem
 
-	emake clean
+	emake cleanall
 	emake release \
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die "make failed"
 	pax-mark m $(file usr/bin/julia-* | awk -F : '/ELF/ {print $1}')
@@ -184,6 +187,14 @@ src_test() {
 }
 
 src_install() {
+	# Julia is special. It tries to find a valid git repository (that would
+	# normally be cloned during compilation/installation). Just make it
+	# happy...
+	git init && \
+		git config --local user.email "whatyoudoing@example.com" && \
+		git config --local user.name "Whyyyyyy" && \
+		git commit -a --allow-empty -m "initial" || die "git failed"
+
 	emake install \
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
 	cat > 99julia <<-EOF
@@ -196,7 +207,7 @@ src_install() {
 	mv "${ED}"/usr/etc/julia "${ED}"/etc || die
 	rmdir "${ED}"/usr/etc || die
 	mv "${ED}"/usr/share/doc/julia/{examples,html} \
-		"${ED}"/usr/share/doc/${PN}-${PVR} || die
+		"${ED}"/usr/share/doc/${PF} || die
 	rmdir "${ED}"/usr/share/doc/julia || die
 	if [[ $(get_libdir) != lib ]]; then
 		mkdir -p "${ED}"/usr/$(get_libdir) || die

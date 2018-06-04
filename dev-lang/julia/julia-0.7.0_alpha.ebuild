@@ -1,28 +1,27 @@
-# Copyright 1999-2017 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id$
 
 EAPI=6
 
 RESTRICT="test"
 
-inherit elisp-common eutils multilib pax-utils toolchain-funcs
+inherit eutils multilib pax-utils toolchain-funcs
 
 DESCRIPTION="High-performance programming language for technical computing"
 HOMEPAGE="http://julialang.org/"
 SRC_URI="
-	https://github.com/JuliaLang/${PN}/archive/v${PVR}/${P}.tar.gz
+	https://github.com/JuliaLang/${PN}/releases/download/v${PVR/_/-}/${P/_/-}.tar.gz
 "
 
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="mkl mkl_fft polly int64 jitevents"
+IUSE="mkl mkl_fft int64 polly jitevents"
 REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
 
 RDEPEND="
-	>=sys-devel/llvm-3.7:0=
-	dev-libs/libuv:0=
+	sys-devel/llvm
+	sys-devel/clang
 	sci-libs/openlibm:0=
 	dev-libs/openspecfun:0=
 	virtual/blas
@@ -30,64 +29,82 @@ RDEPEND="
 	mkl? ( sci-libs/mkl )
 	>=sci-libs/suitesparse-4.1:0=
 	sci-libs/arpack:0=
-	>=sci-libs/fftw-3.3:=
-	>=dev-libs/libpcre2-10.0:0=
+	!mkl_fft? ( >=sci-libs/fftw-3.3:=[threads] )
+	>=dev-libs/libpcre2-10.0:0=[jit]
 	>=dev-libs/gmp-5.0:0=
 	>=dev-libs/mpfr-3.0:0=
-	>=dev-libs/libgit2-0.23:0=
+	>=dev-libs/libgit2-0.25:0=
 	>=net-misc/curl-7.50:0=
 	>=net-libs/libssh2-1.7:0=
 	>=net-libs/mbedtls-2.2:0=
-	sys-libs/libunwind:=
+	>=sys-libs/libunwind-1.1:7=
+	<sys-libs/libunwind-1.2.1
 	dev-python/sphinx[python_targets_python2_7]"
 
 DEPEND="${RDEPEND}
-	dev-lang/python:2.7
-	sys-devel/gcc[fortran]
-	dev-lang/perl
-	sys-devel/m4
+	dev-vcs/git
 	dev-util/patchelf
 	virtual/pkgconfig"
 
-src_prepare() {
-	use polly && tc-check-openmp && eapply "${FILESDIR}/${PN}-${PVR}-polly-openmp.patch"
+PATCHES=(
+	"${FILESDIR}"/${PN}-0.7-fix_build_system.patch
+)
 
-	eapply_user
+
+src_unpack() {
+	if [ "${A}" != "" ]; then
+		unpack ${A}
+	fi
+}
+
+S="${WORKDIR}/${PN}"
+
+src_prepare() {
+	default
 
 	sed -i \
-		-e "s|\(JULIA_EXECUTABLE = \)\(\$(JULIAHOME)/julia\)|\1 LD_LIBRARY_PATH=\$(build_prefix)/$(get_libdir) \2|" \
-		-e "s|LIBDIR = lib|LIBDIR = $(get_libdir)|" \
 		-e "s|/usr/lib|${EPREFIX}/usr/$(get_libdir)|" \
 		-e "s|/usr/include|${EPREFIX}/usr/include|" \
 		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|" \
+		-e "s|^JULIA_COMMIT = .*|JULIA_COMMIT = v${PVR/_alpha/-pre.alpha}|" \
+		-e "s|libuv-julia.a|libuv.a|" \
+		-e "s|LIBDIR = lib|LIBDIR = $(get_libdir)|" \
 		-e "s|^JULIA_COMMIT = .*|JULIA_COMMIT = v${PV}|" \
 		Make.inc || die
 
 	sed -i \
 		-e "s|,lib)|,$(get_libdir))|g" \
-		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|g" \
+		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|" \
 		Makefile || die
 
 	sed -i \
-		-e "s|-rm -rf _build/\*|@echo \"Do not clean doc/_build/html. Just use it...\"|g" \
+		-e "s|\$(build_includedir)/uv-errno.h|\$(LIBUV_INC)/uv-errno.h|" \
+		base/Makefile || die
+
+	sed -i \
+		-e "s|-rm -rf _build/\* deps/\* docbuild.log UnicodeData.txt|@echo \"Do not clean doc/_build/html. Just use it...\"|" \
+		-e "s|default: html|default: |"\
 		doc/Makefile || die
 
 	sed -i \
-		-e "s|ar -rcs|$(tc-getAR) -rcs|g" \
-		-e "s|-lLLVM-\$(shell \$(LLVM_CONFIG_HOST) --version)|\$(shell \$(LLVM_CONFIG_HOST) --libs)|g" \
+		-e "s|ar -rcs|$(tc-getAR) -rcs|" \
 		src/Makefile || die
+
+	# disable doc install starting  git fetching
+	sed -i -e 's~install: $(build_depsbindir)/stringreplace $(BUILDROOT)/doc/_build/html/en/index.html~install: $(build_depsbindir)/stringreplace~' Makefile || die
 }
 
-#-e "s|-lLLVM-\$(shell $(LLVM_CONFIG_HOST) --version)|\$(shell \$(LLVM_CONFIG_HOST) --libs)|g" \
-
 src_configure() {
-	# julia does not play well with the system versions of
-	# dsfmt, libuv, pcre2 and utf8proc
+	cat <<-EOF > Make.user
+		LD_LIBRARY_PATH=$(get_libdir)
+	EOF
+
 	cat <<-EOF > Make.user
 		USE_SYSTEM_LLVM=1
 		USE_SYSTEM_LIBUNWIND=1
 		USE_SYSTEM_PCRE=1
-		USE_SYSTEM_LIBM=1
+		USE_SYSTEM_LIBM=0
+		USE_SYSTEM_RMATH=0
 		USE_SYSTEM_OPENLIBM=1
 		UNTRUSTED_SYSTEM_LIBM=0
 		USE_SYSTEM_OPENSPECFUN=1
@@ -96,6 +113,7 @@ src_configure() {
 		USE_SYSTEM_LAPACK=1
 		USE_SYSTEM_FFTW=1
 		USE_SYSTEM_GMP=1
+		USE_SYSTEM_GRISU=1
 		USE_SYSTEM_MPFR=1
 		USE_SYSTEM_ARPACK=1
 		USE_SYSTEM_SUITESPARSE=1
@@ -107,14 +125,21 @@ src_configure() {
 		USE_SYSTEM_LIBGIT2=1
 		USE_SYSTEM_PATCHELF=1
 		VERBOSE=1
+
+		USE_LLVM_SHLIB=0
+
+		libdir="${EROOT}/usr/$(get_libdir)"
+		SHIPFLAGS = ${CFLAGS}
+
+		INSTALL_F=install -m 644
+		INSTALL_M=install -m 755
 	EOF
 
 	if tc-is-clang; then
 		echo "USECLANG = 1" >> Make.user
 	fi
 
-	#echo "SHIPFLAGS = ${CFLAGS}" >> Make.user
-	echo "NO_GIT = 1" >> Make.user
+	#echo "NO_GIT = 1" >> Make.user
 
 	if use int64; then
 		echo "USE_BLAS64 = 1" >> Make.user
@@ -151,18 +176,18 @@ src_configure() {
 	if use jitevents; then
 		echo "USE_INTEL_JITEVENTS = 1" >> Make.user
 	fi
-
 }
 
 src_compile() {
+
+	# Julia accesses /proc/self/mem on Linux
 	addpredict /proc/self/mem
 
 	emake cleanall
-	emake julia-release \
+	emake release \
 		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die "make failed"
 	pax-mark m $(file usr/bin/julia-* | awk -F : '/ELF/ {print $1}')
 	emake
-	#use emacs && elisp-compile contrib/julia-mode.el
 }
 
 src_test() {
@@ -170,11 +195,19 @@ src_test() {
 }
 
 src_install() {
+	# Julia is special. It tries to find a valid git repository (that would
+	# normally be cloned during compilation/installation). Just make it
+	# happy...
+	git init && \
+		git config --local user.email "whatyoudoing@example.com" && \
+		git config --local user.name "Whyyyyyy" && \
+		git commit -a --allow-empty -m "initial" || die "git failed"
+
 	emake install \
-		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
+		prefix="${EPREFIX}/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
+
 	cat > 99julia <<-EOF
 		LDPATH=${EROOT%/}/usr/$(get_libdir)/julia
-		JULIA_POLLY_ARGS="-polly-parallel -polly-vectorizer=polly"
 	EOF
 	doenvd 99julia
 
@@ -182,18 +215,11 @@ src_install() {
 
 	mv "${ED}"/usr/etc/julia "${ED}"/etc || die
 	rmdir "${ED}"/usr/etc || die
-	rmdir "${ED}"/usr/libexec || die
-	mv "${ED}"/usr/share/doc/julia/{examples,html} \
-		"${ED}"/usr/share/doc/${PN}-${PVR} || die
+	mv "${ED}"/usr/share/doc/julia/html \
+		"${ED}"/usr/share/doc/${PF} || die
 	rmdir "${ED}"/usr/share/doc/julia || die
 	if [[ $(get_libdir) != lib ]]; then
 		mkdir -p "${ED}"/usr/$(get_libdir) || die
 		mv "${ED}"/usr/lib/julia "${ED}"/usr/$(get_libdir)/julia || die
 	fi
 }
-
-#pkg_postinst() {
-#}
-
-#pkg_postrm() {
-#}

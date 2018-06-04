@@ -5,7 +5,7 @@ EAPI=6
 
 RESTRICT="test"
 
-inherit git-r3 llvm pax-utils toolchain-funcs
+inherit git-r3 llvm pax-utils toolchain-funcs eutils
 
 DESCRIPTION="High-performance programming language for technical computing"
 HOMEPAGE="https://julialang.org/"
