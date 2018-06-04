@@ -1,7 +1,7 @@
 # ElectronicBuilds
 Overlay for portage for the Julia language.
 
-##Installation
+## Installation
 
 Add the repo to layman via
 ```bash
