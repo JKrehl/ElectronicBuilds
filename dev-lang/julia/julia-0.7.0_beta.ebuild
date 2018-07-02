@@ -194,10 +194,10 @@ src_install() {
 	# Julia is special. It tries to find a valid git repository (that would
 	# normally be cloned during compilation/installation). Just make it
 	# happy...
-	git init && \
-		git config --local user.email "whatyoudoing@example.com" && \
-		git config --local user.name "Whyyyyyy" && \
-		git commit -a --allow-empty -m "initial" || die "git failed"
+	# git init && \
+	#	git config --local user.email "whatyoudoing@example.com" && \
+	#	git config --local user.name "Whyyyyyy" && \
+	#	git commit -a --allow-empty -m "initial" || die "git failed"
 
 	emake install \
 		prefix="${EPREFIX}/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
