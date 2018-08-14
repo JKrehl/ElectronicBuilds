@@ -9,6 +9,6 @@
 <flag name="polly"> use POLLY </flag>
 <flag name="int64"> use the int64 interface of the BLAS</flag>
 <flag name="jitevents"> activate emission of Intel JIT events of vtune</flag>
-<flag name="llvm5"> enable the use of LLVM better than 4</flag>
+<flag name="system_llvm"> use system LLVM, julia supplies patched version of LLVM</flag>
 </use>
 </pkgmetadata>

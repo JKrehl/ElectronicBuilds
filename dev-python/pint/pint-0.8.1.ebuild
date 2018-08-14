@@ -22,7 +22,9 @@ REQUIRED_USE=""
 RDEPEND="
 "
 
-DEPEND="${RDEPEND}"
+DEPEND="${RDEPEND}
+		dev-python/setuptools
+"
 
 
 python_prepare_all() {

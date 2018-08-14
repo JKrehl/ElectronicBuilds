@@ -16,12 +16,12 @@ SRC_URI="
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="mkl mkl_fft int64 polly jitevents"
+IUSE="system_llvm mkl mkl_fft int64 polly jitevents julia-debug"
 REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
 
 RDEPEND="
-	sys-devel/llvm
-	sys-devel/clang
+	system_llvm? ( sys-devel/llvm )
+	system_llvm? ( sys-devel/clang )
 	dev-libs/openspecfun:0=
 	virtual/blas
 	virtual/lapack
@@ -36,17 +36,14 @@ RDEPEND="
 	>=net-misc/curl-7.50:0=
 	>=net-libs/libssh2-1.7:0=
 	>=net-libs/mbedtls-2.2:0=
-	dev-python/sphinx[python_targets_python2_7]"
+	dev-python/sphinx[python_targets_python2_7]
+	sci-libs/openlibm:0=
+"
 
 DEPEND="${RDEPEND}
 	dev-vcs/git
 	dev-util/patchelf
 	virtual/pkgconfig"
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-0.7-fix_build_system.patch
-)
-
 
 src_unpack() {
 	if [ "${A}" != "" ]; then
@@ -62,11 +59,7 @@ src_prepare() {
 	sed -i \
 		-e "s|/usr/lib|${EPREFIX}/usr/$(get_libdir)|" \
 		-e "s|/usr/include|${EPREFIX}/usr/include|" \
-		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|" \
-		-e "s|^JULIA_COMMIT = .*|JULIA_COMMIT = v${PVR/_alpha/-pre.alpha}|" \
-		-e "s|libuv-julia.a|libuv.a|" \
 		-e "s|LIBDIR = lib|LIBDIR = $(get_libdir)|" \
-		-e "s|^JULIA_COMMIT = .*|JULIA_COMMIT = v${PV}|" \
 		Make.inc || die
 
 	sed -i \
@@ -74,21 +67,22 @@ src_prepare() {
 		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|" \
 		Makefile || die
 
+
 	sed -i \
 		-e "s|\$(build_includedir)/uv-errno.h|\$(LIBUV_INC)/uv-errno.h|" \
 		base/Makefile || die
 
-	sed -i \
-		-e "s|-rm -rf _build/\* deps/\* docbuild.log UnicodeData.txt|@echo \"Do not clean doc/_build/html. Just use it...\"|" \
-		-e "s|default: html|default: |"\
-		doc/Makefile || die
+	#sed -i \
+	#	-e "s|-rm -rf _build/\* deps/\* docbuild.log UnicodeData.txt|@echo \"Do not clean doc/_build/html. Just use it...\"|" \
+		#-e "s|default: html|default: |"\
+		#doc/Makefile || die
 
 	sed -i \
 		-e "s|ar -rcs|$(tc-getAR) -rcs|" \
 		src/Makefile || die
 
 	# disable doc install starting  git fetching
-	sed -i -e 's~install: $(build_depsbindir)/stringreplace $(BUILDROOT)/doc/_build/html/en/index.html~install: $(build_depsbindir)/stringreplace~' Makefile || die
+	# sed -i -e 's~install: $(build_depsbindir)/stringreplace $(BUILDROOT)/doc/_build/html/en/index.html~install: $(build_depsbindir)/stringreplace~' Makefile || die
 }
 
 src_configure() {
@@ -96,8 +90,11 @@ src_configure() {
 		LD_LIBRARY_PATH=$(get_libdir)
 	EOF
 
-	cat <<-EOF > Make.user
-		USE_SYSTEM_LLVM=1
+	if use system_llvm; then
+		echo "USE_SYSTEM_LLVM=1" >> Make.user
+	fi
+
+	cat <<-EOF >> Make.user
 		USE_SYSTEM_LIBUNWIND=1
 		USE_SYSTEM_PCRE=1
 		USE_SYSTEM_LIBM=0
@@ -120,22 +117,17 @@ src_configure() {
 		USE_SYSTEM_CURL=1
 		USE_SYSTEM_LIBGIT2=1
 		USE_SYSTEM_PATCHELF=1
-		VERBOSE=1
 
-		USE_LLVM_SHLIB=0
+		USE_LLVM_SHLIB = 0
 
-		libdir="${EROOT}/usr/$(get_libdir)"
 		SHIPFLAGS = ${CFLAGS}
-
-		INSTALL_F=install -m 644
-		INSTALL_M=install -m 755
 	EOF
 
 	if tc-is-clang; then
 		echo "USECLANG = 1" >> Make.user
 	fi
 
-	#echo "NO_GIT = 1" >> Make.user
+	echo "NO_GIT = 1" >> Make.user
 
 	if use int64; then
 		echo "USE_BLAS64 = 1" >> Make.user
@@ -170,8 +162,15 @@ src_configure() {
 	fi
 
 	if use jitevents; then
-		echo "USE_INTEL_JITEVENTS = 1" >> Make.user
+		echo "USE_PERF_JITEVENTS = 1" >> Make.user
 	fi
+
+	if use julia-debug; then
+		echo "BUNDLE_DEBUG_LIBS = 1" >> Make.user
+	fi
+
+	emake configure O="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
+
 }
 
 src_compile() {
@@ -179,28 +178,23 @@ src_compile() {
 	# Julia accesses /proc/self/mem on Linux
 	addpredict /proc/self/mem
 
-	emake cleanall
-	emake release \
-		prefix="/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)" || die "make failed"
+	if use julia-debug; then
+		emake all CC="$(tc-getCC)" CXX="$(tc-getCXX)"
+	else
+		emake release CC="$(tc-getCC)" CXX="$(tc-getCXX)"
+	fi
+
 	pax-mark m $(file usr/bin/julia-* | awk -F : '/ELF/ {print $1}')
-	emake
+
+	mv "${WORKDIR}/julia/doc/_build" "${WORKDIR}/doc/" || die
 }
 
 src_test() {
-	emake test
+	emake test O="${D}"
 }
 
 src_install() {
-	# Julia is special. It tries to find a valid git repository (that would
-	# normally be cloned during compilation/installation). Just make it
-	# happy...
-	# git init && \
-	#	git config --local user.email "whatyoudoing@example.com" && \
-	#	git config --local user.name "Whyyyyyy" && \
-	#	git commit -a --allow-empty -m "initial" || die "git failed"
-
-	emake install \
-		prefix="${EPREFIX}/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
+	emake install prefix="${EPREFIX}/usr" DESTDIR="${D}" CC="$(tc-getCC)" CXX="$(tc-getCXX)"
 
 	cat > 99julia <<-EOF
 		LDPATH=${EROOT%/}/usr/$(get_libdir)/julia
@@ -209,13 +203,13 @@ src_install() {
 
 	dodoc README.md
 
-	mv "${ED}"/usr/etc/julia "${ED}"/etc || die
-	rmdir "${ED}"/usr/etc || die
-	mv "${ED}"/usr/share/doc/julia/html \
-		"${ED}"/usr/share/doc/${PF} || die
-	rmdir "${ED}"/usr/share/doc/julia || die
-	if [[ $(get_libdir) != lib ]]; then
-		mkdir -p "${ED}"/usr/$(get_libdir) || die
-		mv "${ED}"/usr/lib/julia "${ED}"/usr/$(get_libdir)/julia || die
-	fi
+	#mv "${ED}"/usr/etc/julia "${ED}"/etc || die
+	#rmdir "${ED}"/usr/etc || die
+	#mv "${ED}"/usr/share/doc/julia/html \
+	#	"${ED}"/usr/share/doc/${PF} || die
+	#rmdir "${ED}"/usr/share/doc/julia || die
+	#if [[ $(get_libdir) != lib ]]; then
+	#	mkdir -p "${ED}"/usr/$(get_libdir) || die
+	#	mv "${ED}"/usr/lib/julia "${ED}"/usr/$(get_libdir)/julia || die
+	#fi
 }
