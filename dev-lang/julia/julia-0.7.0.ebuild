@@ -158,7 +158,8 @@ src_configure() {
 	fi
 
 	if use polly; then
-		echo "USE_POLLY  = 1" >> Make.user
+		echo "USE_POLLY = 1" >> Make.user
+		echo "USE_POLLY_OPENMP = 1" >> Make.user
 	fi
 
 	if use jitevents; then

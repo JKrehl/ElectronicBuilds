@@ -159,6 +159,7 @@ src_configure() {
 
 	if use polly; then
 		echo "USE_POLLY  = 1" >> Make.user
+		echo "LLVM_VER = svn" >> Make.user
 	fi
 
 	if use jitevents; then
