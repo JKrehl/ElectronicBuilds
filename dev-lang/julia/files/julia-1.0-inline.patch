@@ -1,0 +1,13 @@
+diff --git a/base/compiler/optimize.jl b/base/compiler/optimize.jl
+index 13d2462673..2d6f03eef1 100644
+--- a/base/compiler/optimize.jl
++++ b/base/compiler/optimize.jl
+@@ -229,6 +229,8 @@ function optimize(opt::OptimizationState, @nospecialize(result))
+     end
+     if force_noinline
+         opt.src.inlineable = false
++    elseif opt.src.inlineable
++        # hack by JK
+     elseif isa(def, Method)
+         bonus = 0
+         if result ⊑ Tuple && !isbitstype(widenconst(result))

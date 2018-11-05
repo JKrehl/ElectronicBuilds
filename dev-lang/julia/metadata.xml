@@ -10,5 +10,6 @@
 <flag name="int64"> use the int64 interface of the BLAS</flag>
 <flag name="jitevents"> activate emission of Intel JIT events of vtune</flag>
 <flag name="system_llvm"> use system LLVM, julia supplies patched version of LLVM</flag>
+<flag name="inline"> activate hack to make @inline force inline instead of hint</flag>
 </use>
 </pkgmetadata>

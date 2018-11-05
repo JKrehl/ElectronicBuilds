@@ -5,7 +5,7 @@ EAPI=6
 
 RESTRICT="test"
 
-inherit eutils multilib pax-utils toolchain-funcs
+inherit eutils pax-utils toolchain-funcs
 
 DESCRIPTION="High-performance programming language for technical computing"
 HOMEPAGE="http://julialang.org/"
@@ -16,7 +16,7 @@ SRC_URI="
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="system_llvm mkl mkl_fft int64 polly jitevents julia-debug"
+IUSE="system_llvm mkl mkl_fft int64 polly jitevents julia-debug inline"
 REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
 
 RDEPEND="
@@ -59,7 +59,7 @@ src_prepare() {
 	sed -i \
 		-e "s|/usr/lib|${EPREFIX}/usr/$(get_libdir)|" \
 		-e "s|/usr/include|${EPREFIX}/usr/include|" \
-		-e "s|LIBDIR = lib|LIBDIR = $(get_libdir)|" \
+		-e "s|LIBDIR = lib|LIBDIR = ${EPREFIX}/usr/$(get_libdir)|" \
 		Make.inc || die
 
 	sed -i \
@@ -68,9 +68,9 @@ src_prepare() {
 		Makefile || die
 
 
-	sed -i \
-		-e "s|\$(build_includedir)/uv-errno.h|\$(LIBUV_INC)/uv-errno.h|" \
-		base/Makefile || die
+	#sed -i \
+#		-e "s|\$(build_includedir)/uv-errno.h|\$(LIBUV_INC)/uv-errno.h|" \
+#		base/Makefile || die
 
 	#sed -i \
 	#	-e "s|-rm -rf _build/\* deps/\* docbuild.log UnicodeData.txt|@echo \"Do not clean doc/_build/html. Just use it...\"|" \
@@ -89,6 +89,10 @@ src_configure() {
 	cat <<-EOF > Make.user
 		LD_LIBRARY_PATH=$(get_libdir)
 	EOF
+
+	if use inline; then
+		epatch  "${FILESDIR}/julia-1.0-inline.patch" || die
+	fi
 
 	if use system_llvm; then
 		echo "USE_SYSTEM_LLVM=1" >> Make.user
@@ -121,6 +125,7 @@ src_configure() {
 		USE_LLVM_SHLIB = 0
 
 		SHIPFLAGS = ${CFLAGS}
+		libdir="${EROOT}/usr/$(get_libdir)"
 	EOF
 
 	if tc-is-clang; then
@@ -204,11 +209,10 @@ src_install() {
 
 	dodoc README.md
 
-	#mv "${ED}"/usr/etc/julia "${ED}"/etc || die
-	#rmdir "${ED}"/usr/etc || die
-	#mv "${ED}"/usr/share/doc/julia/html \
-	#	"${ED}"/usr/share/doc/${PF} || die
-	#rmdir "${ED}"/usr/share/doc/julia || die
+	mv "${ED}"/usr/etc/julia "${ED}"/etc || die
+	rmdir "${ED}"/usr/etc || die
+	mv "${ED}"/usr/share/doc/julia/html "${ED}"/usr/share/doc/${PF} || die
+	rmdir "${ED}"/usr/share/doc/julia || die
 	#if [[ $(get_libdir) != lib ]]; then
 	#	mkdir -p "${ED}"/usr/$(get_libdir) || die
 	#	mv "${ED}"/usr/lib/julia "${ED}"/usr/$(get_libdir)/julia || die
