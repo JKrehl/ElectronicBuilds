@@ -1,13 +1,13 @@
 diff --git a/base/compiler/optimize.jl b/base/compiler/optimize.jl
-index 13d2462673..2d6f03eef1 100644
+index d83d13831d..bd8f92e298 100644
 --- a/base/compiler/optimize.jl
 +++ b/base/compiler/optimize.jl
-@@ -229,6 +229,8 @@ function optimize(opt::OptimizationState, @nospecialize(result))
-     end
+@@ -234,7 +234,7 @@ function optimize(opt::OptimizationState, @nospecialize(result))
      if force_noinline
          opt.src.inlineable = false
-+    elseif opt.src.inlineable
-+        # hack by JK
      elseif isa(def, Method)
-         bonus = 0
-         if result ⊑ Tuple && !isbitstype(widenconst(result))
+-        if opt.src.inlineable && isdispatchtuple(opt.linfo.specTypes)
++        if opt.src.inlineable# && isdispatchtuple(opt.linfo.specTypes)
+             # obey @inline declaration if a dispatch barrier would not help
+         else
+             bonus = 0

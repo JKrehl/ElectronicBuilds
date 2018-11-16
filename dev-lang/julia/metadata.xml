@@ -8,8 +8,11 @@
 <flag name="mkl_fft"> use INTEL MKL his FFT </flag>
 <flag name="polly"> use POLLY </flag>
 <flag name="int64"> use the int64 interface of the BLAS</flag>
-<flag name="jitevents"> activate emission of Intel JIT events of vtune</flag>
+<flag name="intel-jitevents"> activate emission of Intel JIT events for vtune</flag>
+<flag name="oprofile-jitevents"> activate emission of OProfile JIT events</flag>
+<flag name="perf-jitevents"> activate emission of perf JIT events</flag>
 <flag name="system_llvm"> use system LLVM, julia supplies patched version of LLVM</flag>
 <flag name="inline"> activate hack to make @inline force inline instead of hint</flag>
+<flag name="clang"> also build clang and lldb</flag>
 </use>
 </pkgmetadata>
