@@ -206,7 +206,7 @@ src_install() {
 	mv "${ED}"/usr/etc/julia "${ED}"/etc || die
 	rmdir "${ED}"/usr/etc || die
 	mv "${ED}"/usr/share/doc/julia/html "${ED}"/usr/share/doc/${PF} || die
-	rmdir "${ED}"/usr/share/doc/julia || die
+	#rmdir "${ED}"/usr/share/doc/julia || die
 	#if [[ $(get_libdir) != lib ]]; then
 	#	mkdir -p "${ED}"/usr/$(get_libdir) || die
 	#	mv "${ED}"/usr/lib/julia "${ED}"/usr/$(get_libdir)/julia || die
