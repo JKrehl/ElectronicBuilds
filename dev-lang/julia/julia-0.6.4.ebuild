@@ -59,7 +59,7 @@ src_prepare() {
 	sed -i \
 		-e "s|/usr/lib|${EPREFIX}/usr/$(get_libdir)|" \
 		-e "s|/usr/include|${EPREFIX}/usr/include|" \
-		-e "s|LIBDIR = lib|LIBDIR = $(get_libdir)|" \
+		-e "s|LIBDIR = lib|LIBDIR = ${EPREFIX}/usr/$(get_libdir)|" \
 		Make.inc || die
 
 	sed -i \
@@ -121,6 +121,7 @@ src_configure() {
 		USE_LLVM_SHLIB = 0
 
 		SHIPFLAGS = ${CFLAGS}
+		libdir="${EROOT}/usr/$(get_libdir)"
 	EOF
 
 	if tc-is-clang; then
