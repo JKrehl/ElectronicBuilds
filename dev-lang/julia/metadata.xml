@@ -12,7 +12,6 @@
 <flag name="oprofile-jitevents"> activate emission of OProfile JIT events</flag>
 <flag name="perf-jitevents"> activate emission of perf JIT events</flag>
 <flag name="system_llvm"> use system LLVM, julia supplies patched version of LLVM</flag>
-<flag name="inline"> activate hack to make @inline force inline instead of hint</flag>
 <flag name="clang"> also build clang and lldb</flag>
 </use>
 </pkgmetadata>

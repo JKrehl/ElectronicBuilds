@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Foundation
+# Copyright 1999-2018 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -16,7 +16,7 @@ SRC_URI="
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
-IUSE="system_llvm mkl mkl_fft int64 polly jitevents julia-debug inline"
+IUSE="system_llvm mkl mkl_fft int64 polly jitevents julia-debug"
 REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
 
 RDEPEND="
@@ -67,32 +67,15 @@ src_prepare() {
 		-e "s|\$(build_prefix)/lib|\$(build_prefix)/$(get_libdir)|" \
 		Makefile || die
 
-
-	#sed -i \
-#		-e "s|\$(build_includedir)/uv-errno.h|\$(LIBUV_INC)/uv-errno.h|" \
-#		base/Makefile || die
-
-	#sed -i \
-	#	-e "s|-rm -rf _build/\* deps/\* docbuild.log UnicodeData.txt|@echo \"Do not clean doc/_build/html. Just use it...\"|" \
-		#-e "s|default: html|default: |"\
-		#doc/Makefile || die
-
 	sed -i \
 		-e "s|ar -rcs|$(tc-getAR) -rcs|" \
 		src/Makefile || die
-
-	# disable doc install starting  git fetching
-	# sed -i -e 's~install: $(build_depsbindir)/stringreplace $(BUILDROOT)/doc/_build/html/en/index.html~install: $(build_depsbindir)/stringreplace~' Makefile || die
 }
 
 src_configure() {
 	cat <<-EOF > Make.user
 		LD_LIBRARY_PATH=$(get_libdir)
 	EOF
-
-	if use inline; then
-		epatch  "${FILESDIR}/julia-1.0-inline.patch" || die
-	fi
 
 	if use system_llvm; then
 		echo "USE_SYSTEM_LLVM=1" >> Make.user
