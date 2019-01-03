@@ -51,8 +51,6 @@ src_unpack() {
 	fi
 }
 
-S="${WORKDIR}/${PN}"
-
 src_prepare() {
 	default
 
