@@ -1,4 +1,4 @@
-# Copyright 1999-2018 Gentoo Authors
+# Copyright 1999-2019 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=6
@@ -17,7 +17,7 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="system_llvm mkl mkl_fft int64 polly intel-jitevents oprofile-jitevents perf-jitevents julia-debug clang"
-REQUIRED_USE="mkl_fft? ( mkl ) int64? ( mkl )"
+REQUIRED_USE="mkl_fft? ( mkl )"
 
 RDEPEND="
 	system_llvm? ( sys-devel/llvm )
@@ -46,9 +46,8 @@ DEPEND="${RDEPEND}
 	virtual/pkgconfig"
 
 src_unpack() {
-	if [ "${A}" != "" ]; then
-		unpack ${A}
-	fi
+	unpack ${A}
+	mv ${WORKDIR}/${P/_/-} ${WORKDIR}/${P}
 }
 
 src_prepare() {
@@ -77,6 +76,10 @@ src_configure() {
 
 	if use system_llvm; then
 		echo "USE_SYSTEM_LLVM=1" >> Make.user
+		echo "USE_LLVM_SHLIB=0" >> Make.user
+	else
+		echo "USE_SYSTEM_LLVM=0" >> Make.user
+		echo "USE_LLVM_SHLIB=0" >> Make.user
 	fi
 
 	cat <<-EOF >> Make.user
@@ -102,8 +105,6 @@ src_configure() {
 		USE_SYSTEM_CURL=1
 		USE_SYSTEM_LIBGIT2=1
 		USE_SYSTEM_PATCHELF=1
-
-		USE_LLVM_SHLIB = 0
 
 		SHIPFLAGS = ${CFLAGS}
 		libdir="${EROOT}/usr/$(get_libdir)"
